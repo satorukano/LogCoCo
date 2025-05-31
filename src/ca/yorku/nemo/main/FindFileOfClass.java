@@ -18,17 +18,17 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class FindFileOfClass {
 	
-	static String projectPath = "D:\\test_data_on_phs_machine\\bce-plat";
-	static String outputFilePath = "D:\\test_data_on_phs_machine\\qualifyname_filepath.txt";
-	static String jreLibPath = "C:\\Program Files\\Java\\jre1.8.0_131\\lib\\rt.jar";
+	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
+	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	
 	static HashMap<String, String> qualifyNameFileAbsPathMap = new HashMap<>();
 	static LinkedHashSet<String> allFiles = new LinkedHashSet<>(); 
 	public static void main(String[] args) {
 		
-		projectPath = args[0];
-		outputFilePath = args[1];
-		jreLibPath = args[2];
+//		projectPath = args[0];
+//		outputFilePath = args[1];
+//		jreLibPath = args[2];
 		
 		try {
 			traverse(new File(projectPath));

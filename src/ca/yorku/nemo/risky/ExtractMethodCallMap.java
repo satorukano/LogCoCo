@@ -32,13 +32,13 @@ import ca.yorku.nemo.main.MainParser;
 
 public class ExtractMethodCallMap {
 	
-	static String qualifyNameFileInfoPath = "qualifyname_filepath.txt";
-	static String projectPath = "D:\\bce-plat\\finance";
-	static String jreLibPath = "C:\\Program Files\\Java\\jre1.8.0_131\\lib\\rt.jar";
-	static String outputContainLogMethodList = "log_containing_methods.txt";
-	static String outputInvokingMethods = "invoke_method.txt";
+	static String qualifyNameFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";;
+	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
+	static String outputContainLogMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
+	static String outputInvokingMethods = "/Users/satorukano/repository/research/LogCoCo/output/invoke_method.txt";
 	
-	static String invokeHeuristics = "org.apache.hadoop";
+	static String invokeHeuristics = "org.apache.zookeeper";
 	HashMap<String, HashSet<String>> methodCallMap = new HashMap<>();
 	
 	static HashMap<String, String> qualifyClassNameFilePathMap = new HashMap<>();
@@ -47,12 +47,12 @@ public class ExtractMethodCallMap {
 	
 	public static void main(String[] args) {
 		
-		projectPath = args[0];
-		qualifyNameFileInfoPath = args[1];
-		jreLibPath = args[2];
-		outputContainLogMethodList = args[3];
-		outputInvokingMethods = args[4];
-		invokeHeuristics = args[5];
+//		projectPath = args[0];
+//		qualifyNameFileInfoPath = args[1];
+//		jreLibPath = args[2];
+//		outputContainLogMethodList = args[3];
+//		outputInvokingMethods = args[4];
+//		invokeHeuristics = args[5];
 		
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyNameFileInfoPath))) {

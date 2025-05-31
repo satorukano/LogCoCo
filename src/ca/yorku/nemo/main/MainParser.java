@@ -51,8 +51,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.CycleDetector;
+import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.moeaframework.Executor;
@@ -85,14 +84,14 @@ import com.google.common.collect.Sets;
 
 public class MainParser {
 	
-	static String projectRootPath = "D:\\bce-plat\\finance";
-	static String qualifyClassNameAndFileInfoPath = "qualifyname_filepath.txt";
-	static String processedLogDir = "D:\\10-10\\thread-level-logs";
-	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
-	static String entryMethodList = "log_containing_methods.txt";
-	static String jreLibPath = "C:\\Program Files\\Java\\jre1.8.0_131\\lib\\rt.jar";
-	static String oracle_coverage_data = "D:\\evaluation_data\\log-sug-bce-plat\\qa_charging_processed_coverage.xml";
-	static String output_coverage_matrix = "D:\\evaluation_data\\log-sug-bce-plat\\qa_fpcharging_coverage_matrix.csv";
+	static String projectRootPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
+	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String processedLogDir = "output/pre_process_logs/";
+//	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
+	static String entryMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
+	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
+	static String oracle_coverage_data = "/Users/satorukano/repository/research/LogCoCo/input/ex.xml";
+	static String output_coverage_matrix = "/Users/satorukano/repository/research/LogCoCo/output/coverage.csv";
 	static String logAddCountDistributionPath = "logAddPointCount.txt"; 
 	static String comparisonTwoObjFunction = "comparisonOfTwoObjFunctionResults.txt";
 	
@@ -122,22 +121,10 @@ public class MainParser {
 	
 	static Logger logger = LogManager.getLogger();
 	
-	static String invokeHeuritics ="org.apache.hadoop";
+	static String invokeHeuritics ="org.apache.zookeeper";
 	
 	public static void main(String[] args) {
-		
-//		if (args.length == 5) {
-			projectRootPath = args[0];
-			qualifyClassNameAndFileInfoPath = args[1];
-			processedLogDir = args[2];
-//			riskyFileInfoPath = args[3];
-			entryMethodList = args[3];
-			jreLibPath = args[4];
-			oracle_coverage_data = args[5];
-			output_coverage_matrix = args[6];
-			invokeHeuritics = args[7];
-//		}
-		
+
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
 			while((line = br.readLine()) != null) {
@@ -176,7 +163,7 @@ public class MainParser {
 		
 		for (String filePath : allFiles) {
 			logger.info("Processing File {}", filePath);
-			if (filePath.contains("hbase-server")) {
+			if (filePath.contains("zookeeper-server")) {
 				if(filePath.contains("zookeeper/ZKSplitLog.java")){
 //					|| filePath.contains("ipc/RpcServer.java")) {
 					continue;
@@ -213,8 +200,11 @@ public class MainParser {
 //			}
 //		}
 		
-		CoverageData coverageData = new CoverageData(oracle_coverage_data);
-		outputMethodCoverage(coverageData);
+//		CoverageData coverageData = new CoverageData(oracle_coverage_data);
+//		outputMethodCoverage();
+
+		outputEstimatedCoverageOnly(output_coverage_matrix);
+
 		
 //		ArrayList<Integer> logAddCountList = new ArrayList<>();
 		
@@ -430,11 +420,11 @@ public class MainParser {
 		return results;
 	}
 	
-	public static void outputMethodCoverage(CoverageData coverageData) {
+	public static void outputMethodCoverage() {
 		
 		int totalCovMethodByLogSug =0;
 		int covBothMethodCanCount = 0;
-		int totalCovByOralce = coverageData.getTotalMethodNumber(); 
+//		int totalCovByOralce = coverageData.getTotalMethodNumber();
 		for(MethodNodeForOutput procMd : methodGlobalMarkMap.keySet()) {
 			System.out.println("--------------------------------------");
 			System.out.println(procMd);
@@ -485,19 +475,19 @@ public class MainParser {
 			if (coveredMethod) {
 				int mdStartLine = procMd.cu.getLineNumber(procMd.md.getStartPosition());
 				int mdEndLine = procMd.cu.getLineNumber(procMd.md.getStartPosition()+procMd.md.getLength() -1);
-				Element covMethodElem = coverageData.getMethodLineCoverageMap(procMd.filePath, procMd.md.getName().toString(), mdStartLine, mdEndLine);
-				if (covMethodElem==null) {
+//				Element covMethodElem = coverageData.getMethodLineCoverageMap(procMd.filePath, procMd.md.getName().toString(), mdStartLine, mdEndLine);
+//				if (covMethodElem==null) {
 					System.out.println("Can't find method elem in covxml!! " + procMd);
-				}
-				else {
+//				}
 					covBothMethodCanCount ++;
-					coverageData.compareCoverage(covMethodElem, lineCoverageMap, branchRepresentativeLineCovMap,
-							procMd, output_coverage_matrix);
-				}
+//					coverageData.compareCoverage(covMethodElem, lineCoverageMap, branchRepresentativeLineCovMap,
+//							procMd, output_coverage_matrix);
+
+
 			}
 		}
-		System.out.printf("Coverage report: Oracle coverage covers methods: %d ; LogSug coverage covers methods: %d; Common coverage covers methods: %d\n",
-				totalCovByOralce, totalCovMethodByLogSug, covBothMethodCanCount);
+		System.out.printf(" LogSug coverage covers methods: %d; Common coverage covers methods: %d\n",
+				 totalCovMethodByLogSug, covBothMethodCanCount);
 	}
 
 	
@@ -553,6 +543,131 @@ public class MainParser {
 //			e.printStackTrace();
 //		}
 //	}
+// MainParser.java の outputEstimatedCoverageOnly メソッドを以下のように修正
+
+	/**
+	 * LogCoCoによって推定されたカバレッジ情報のうち、「Must」とマークされた部分のみを
+	 * CSVファイルに出力します。Must行番号の詳細情報も含みます。
+	 * @param outputCsvPath 出力するCSVファイルのパス
+	 */
+	public static void outputEstimatedCoverageOnly(String outputCsvPath) {
+		System.out.println("Outputting 'Must' estimated coverage (with line details) to: " + outputCsvPath);
+		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(outputCsvPath, false)))) {
+			// CSVヘッダーの書き込み
+			writer.println("Method,FilePath,StartLine,EndLine,MustCoveredLines,TotalConsideredLines,LineCoverageRate,MustCoveredBranches,TotalConsideredBranches,BranchCoverageRate,MustLineNumbers,MustBranchRepresentativeLineNumbers");
+
+			for (MethodNodeForOutput procMd : methodGlobalMarkMap.keySet()) {
+				System.out.println("--------------------------------------");
+				System.out.println("Processing method for CSV output (Must only, detailed): " + procMd);
+				HashMap<ASTNode, String> markMap = methodGlobalMarkMap.get(procMd);
+
+				// === ラインカバレッジ (LogCoCoの推定に基づく) ===
+				// coverageByLog に相当する TreeMap<Integer, String> lineStatusByLogCoCo
+				TreeMap<Integer, String> lineStatusByLogCoCo = calculateCoverageMap(markMap, procMd);
+
+				int mustTrueLines = 0;
+				StringBuilder mustLineNumbersBuilder = new StringBuilder();
+				for (Map.Entry<Integer, String> entry : lineStatusByLogCoCo.entrySet()) {
+					if ("Must".equals(entry.getValue())) {
+						mustTrueLines++;
+						if (mustLineNumbersBuilder.length() > 0) {
+							mustLineNumbersBuilder.append(";");
+						}
+						mustLineNumbersBuilder.append(entry.getKey());
+					}
+				}
+				int totalConsideredLines = lineStatusByLogCoCo.size(); // LogCoCoがステータスを割り当てた行の総数
+				double lineCoverageRate = (totalConsideredLines > 0) ? (double) mustTrueLines / totalConsideredLines : 0.0;
+				String mustLineNumbers = mustLineNumbersBuilder.length() > 0 ? mustLineNumbersBuilder.toString() : "None";
+
+				// === ブランチカバレッジ (LogCoCoの推定に基づく) ===
+				// branchCoverageByLog に相当する TreeMap<Integer, String> branchStatusByLogCoCo
+				TreeMap<Integer, String> branchStatusByLogCoCo = new TreeMap<>();
+				int totalConsideredBranches = 0;
+
+				for (ASTNode node : markMap.keySet()) {
+					if ((node instanceof org.eclipse.jdt.core.dom.Block || node instanceof org.eclipse.jdt.core.dom.SwitchCase) &&
+							!((node.getParent() instanceof org.eclipse.jdt.core.dom.TryStatement) ||
+									(node.getParent() instanceof org.eclipse.jdt.core.dom.SynchronizedStatement) ||
+									(node.getParent() instanceof org.eclipse.jdt.core.dom.MethodDeclaration))) {
+
+						totalConsideredBranches++; // LogCoCoが考慮するブランチとしてカウント
+						int representativeLine = -1;
+						String status = markMap.get(node); // デフォルトはブロック/ケース自体のマーク
+
+						if (node instanceof org.eclipse.jdt.core.dom.SwitchCase) {
+							representativeLine = procMd.cu.getLineNumber(node.getStartPosition());
+						} else if (node instanceof org.eclipse.jdt.core.dom.Block) {
+							java.util.List stmtList = ((org.eclipse.jdt.core.dom.Block) node).statements();
+							if (!stmtList.isEmpty()) {
+								// ブロック内の最初のステートメントの行とステータスを代表とする
+								org.eclipse.jdt.core.dom.Statement firstStmtInBlock = (org.eclipse.jdt.core.dom.Statement) stmtList.get(0);
+								representativeLine = procMd.cu.getLineNumber(firstStmtInBlock.getStartPosition());
+								status = markMap.get(firstStmtInBlock); // 最初のステートメントのマークを使用
+							} else {
+								// 空のブロックの場合
+								representativeLine = procMd.cu.getLineNumber(node.getStartPosition());
+							}
+						}
+
+						if(representativeLine != -1 && status != null) { // 有効な行番号とステータスがある場合のみ
+							branchStatusByLogCoCo.put(representativeLine, status);
+						} else if (representativeLine != -1) { // ステータスがnullだが行は取れる場合 (マークマップにないノードなど)
+							// このケースは通常、markMap.keySet() をループしているので発生しにくいが念のため
+							// branchStatusByLogCoCo.put(representativeLine, "Unknown"); // またはスキップ
+						}
+					}
+				}
+
+				int mustTrueBranches = 0;
+				StringBuilder mustBranchLineNumbersBuilder = new StringBuilder();
+				for (Map.Entry<Integer, String> entry : branchStatusByLogCoCo.entrySet()) {
+					if ("Must".equals(entry.getValue())) {
+						mustTrueBranches++;
+						if (mustBranchLineNumbersBuilder.length() > 0) {
+							mustBranchLineNumbersBuilder.append(";");
+						}
+						mustBranchLineNumbersBuilder.append(entry.getKey());
+					}
+				}
+				// totalConsideredBranches は上でカウント済み
+				double branchCoverageRate = (totalConsideredBranches > 0) ? (double) mustTrueBranches / totalConsideredBranches : 0.0;
+				String mustBranchRepresentativeLineNumbers = mustBranchLineNumbersBuilder.length() > 0 ? mustBranchLineNumbersBuilder.toString() : "None";
+
+				// メソッド情報の取得
+				String methodName = procMd.md.getName().toString();
+				String filePath = procMd.filePath;
+				int startLine = procMd.cu.getLineNumber(procMd.md.getStartPosition());
+				int endLine = procMd.cu.getLineNumber(procMd.md.getStartPosition() + procMd.md.getLength() - 1);
+
+				// CSVへの書き込み
+				writer.printf("\"%s\",\"%s\",%d,%d,%d,%d,%.4f,%d,%d,%.4f,\"%s\",\"%s\"\n",
+						methodName.replace("\"", "\"\""),
+						filePath.replace("\"", "\"\""),
+						startLine,
+						endLine,
+						mustTrueLines,
+						totalConsideredLines,
+						lineCoverageRate,
+						mustTrueBranches,
+						totalConsideredBranches,
+						branchCoverageRate,
+						mustLineNumbers.replace("\"", "\"\""),
+						mustBranchRepresentativeLineNumbers.replace("\"", "\"\""));
+
+				// 標準出力 (デバッグ用)
+				System.out.printf("  Method: %s (%s:%d-%d)\n", methodName, filePath, startLine, endLine);
+				System.out.printf("  Line Coverage (Must/Considered): %d / %d (%.2f%%)\n", mustTrueLines, totalConsideredLines, lineCoverageRate * 100);
+				System.out.println("  Must Line Numbers: " + mustLineNumbers);
+				System.out.printf("  Branch Coverage (Must/Considered): %d / %d (%.2f%%)\n", mustTrueBranches, totalConsideredBranches, branchCoverageRate * 100);
+				System.out.println("  Must Branch Representative Line Numbers: " + mustBranchRepresentativeLineNumbers);
+			}
+			System.out.println("Finished writing 'Must' estimated coverage (with line details) to CSV.");
+		} catch (Exception e) {
+			System.err.println("Error writing 'Must' estimated coverage (with line details) to CSV: " + outputCsvPath);
+			e.printStackTrace();
+		}
+	}
 	
 	public static void parse(String filePath) {
 		
@@ -569,7 +684,7 @@ public class MainParser {
 			}
 			filePathCompilationUnitMap.put(filePath, cu);
 			for (InterProcNode node : interProcNodesInFile) {
-				DirectedGraph<InterProcNode, DefaultEdge> callGraph = 
+				DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph =
 						new DefaultDirectedGraph<>(DefaultEdge.class);
 				callGraph.addVertex(node);
 //				if(((MethodDeclaration)node.astNode).getName().toString().equals("pullStream")) {
@@ -604,14 +719,14 @@ public class MainParser {
 				HashMap<InterProcNode, ArrayList<ArrayList<DefaultEdge>>> branchPos = FileUtils.extractBranchPossibility(callGraph);
 				ArrayList<HashMap<InterProcNode, ArrayList<DefaultEdge>>> list = new ArrayList<>();
 
-				if (branchPos.size() >= 20) {
+				if (branchPos.size() >= 15) {
 					System.out.println("Branch size more than 20 " + filePath + ";"+ node );
 					continue;
 				}
 				
 				FileUtils.combine(0, new HashMap<InterProcNode,ArrayList<DefaultEdge>>(), branchPos, list);
 //				System.out.println(md.getName()+":"+list.size());
-				if (list.size() >= 100000) {
+				if (list.size() >= 10000) {
 					System.out.println("path size more than 100000" + filePath + ";"+ node );
 					System.out.println(list.size());
 					continue;
@@ -726,6 +841,12 @@ public class MainParser {
 		
 		ArrayList<HashSet<InterProcNode>> executedNodeAll = new ArrayList<>();
 		HashSet<InterProcNode> mayNodeNonRelatedToLog = new HashSet<>();
+		// Check if regexPathMap contains the matchedRegex
+		if (!regexPathMap.containsKey(matchedRegex) || regexPathMap.get(matchedRegex) == null) {
+			System.err.println("Warning: No paths found for regex: " + matchedRegex);
+			return new HashSet<>();
+		}
+		
 		for(ArrayList<InterProcNode> astPath : regexPathMap.get(matchedRegex)) {
 			HashSet<InterProcNode> exeNodeSet = new HashSet<>();
 			for (InterProcNode tmpProcNode : astPath) {
@@ -736,6 +857,12 @@ public class MainParser {
 				}
 			}
 			executedNodeAll.add(exeNodeSet);
+		}
+		
+		// Check if executedNodeAll is empty to avoid IndexOutOfBoundsException
+		if (executedNodeAll.isEmpty()) {
+			System.err.println("Warning: No execution paths found for regex: " + matchedRegex);
+			return new HashSet<>();
 		}
 		
 		HashSet<InterProcNode> mustNodeSet = new HashSet<>(executedNodeAll.get(0));
@@ -772,7 +899,7 @@ public class MainParser {
 	private static HashMap<ASTNode, String> findCommonPath(String matchedRegex,
 			HashMap<String, ArrayList<ArrayList<InterProcNode>>> regexPathMap,
 			InterProcNode procNodeForCoverage, HashMap<ASTNode, String> astNodeGlobalMarkMap,
-			DirectedGraph<InterProcNode, DefaultEdge> callGraph) {
+			DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph) {
 		String fileCalculateCoverage = procNodeForCoverage.filePath;
 		int startLine = procNodeForCoverage.getStartLineOfNode();
 		int endLine = procNodeForCoverage.getEndLineOfNode();
@@ -785,6 +912,12 @@ public class MainParser {
 		HashSet<InterProcNode> allPossibleExeNode = new HashSet<>();
 		
 		HashSet<InterProcNode> allVertexInCallGraphForTheMD = new HashSet<>();
+		
+		// Check if regexPathMap contains the matchedRegex
+		if (!regexPathMap.containsKey(matchedRegex) || regexPathMap.get(matchedRegex) == null) {
+			System.err.println("Warning: No paths found in findCommonPath for regex: " + matchedRegex);
+			return new HashMap<>();
+		}
 		
 		for (ArrayList<InterProcNode> astPath : regexPathMap.get(matchedRegex)) {
 			HashSet<InterProcNode> exeNodeSet = new HashSet<>();
@@ -813,6 +946,13 @@ public class MainParser {
 		allPossibleExeNode.addAll(mayNodeNonRelatedToLog);
 		HashSet<InterProcNode> mustNotNodeSet = new HashSet<>(allVertexInCallGraphForTheMD);
 		mustNotNodeSet.removeAll(allPossibleExeNode);
+		
+		// Check if executedNodeInMd is empty to avoid IndexOutOfBoundsException
+		if (executedNodeInMd.isEmpty()) {
+			System.err.println("Warning: No execution paths found in method for regex: " + matchedRegex);
+			// Return an empty map when no execution paths are found
+			return new HashMap<>();
+		}
 		
 		HashSet<InterProcNode> mustNodeSet = new HashSet<>(executedNodeInMd.get(0));
 		HashSet<InterProcNode> mayNodeSet = new HashSet<>(executedNodeInMd.get(0));
@@ -1327,7 +1467,7 @@ public class MainParser {
 	
 	private static void calcualteCoverage(HashSet<String> logRegexSet,
 			HashMap<String, ArrayList<ArrayList<InterProcNode>>> regexPathMap, InterProcNode mdNode,
-			CompilationUnit cu, DirectedGraph<InterProcNode, DefaultEdge> callGraph,
+			CompilationUnit cu, DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph,
 			ArrayList<String> directLogInMethod) throws Exception {
 		LogRegexMatcher logRegexMatcher = new LogRegexMatcher(logRegexSet);
 		logRegexMatcher.filterInLogFile();
@@ -1522,7 +1662,7 @@ public class MainParser {
 	
 	private static HashMap<ASTNode, String> calcualteCoverageForOneMethod(HashMap<String,ArrayList<String>> matchedLogRegexAndItsMatchedLogStrMap,
 			HashMap<String, ArrayList<ArrayList<InterProcNode>>> regexPathMap, CompilationUnit cu, InterProcNode mdNode, 
-			DirectedGraph<InterProcNode, DefaultEdge> callGraph, MethodNodeForOutput methodNodeForOutput) {
+			DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph, MethodNodeForOutput methodNodeForOutput) {
 		
 		if (methodNodeForOutput.toString().contains("getFinancePrice")) {
 			System.out.println("BTW method?");
@@ -1548,6 +1688,12 @@ public class MainParser {
 		ArrayList<String> regexList = new ArrayList<>();
 		while (tmpRegexIterator.hasNext()) {
 			regexList.add(tmpRegexIterator.next());
+		}
+		
+		// Check if regexList is empty to avoid IndexOutOfBoundsException
+		if (regexList.isEmpty()) {
+			System.err.println("Warning: No regex patterns found for method: " + methodNodeForOutput.toString());
+			return astNodeMergePathsMarkMap;  // Return empty map
 		}
 		
 		astNodeMergePathsMarkMap = new HashMap<>(regexASTNodeMarkMapMap.get(regexList.get(0)));
@@ -1683,7 +1829,7 @@ public class MainParser {
 	}
 
 	
-	private static void processMethod (DirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode interProcMethodVertex, 
+	private static void processMethod (DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode interProcMethodVertex,
 			CompilationUnit currentCU, HashMap<String, CompilationUnit> visitedCUMap, String filePath) {
 		TypeDeclaration tdNode = null;
 		MethodDeclaration methodASTNode = (MethodDeclaration) interProcMethodVertex.astNode;
@@ -1699,7 +1845,7 @@ public class MainParser {
 		}
 	}
 	
-	private static void processStatement(Statement stmt, DirectedGraph<InterProcNode, DefaultEdge> callGraph, 
+	private static void processStatement(Statement stmt, DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph,
 			InterProcNode interProcVertex, TypeDeclaration tdNode, CompilationUnit cu, HashMap<String, CompilationUnit> visitedCUMap,
 			String filePath) {
 		if (stmt == null)
@@ -2139,9 +2285,9 @@ class MDVisitor extends ASTVisitor {
 }
 
 class ReturnVisitor extends ASTVisitor {
-	
+
 	boolean containReturn = false;
-	
+
 	ArrayList<ASTNode> returnList = new ArrayList<>();
 	@Override
 	public boolean visit(ReturnStatement node) {
@@ -2149,7 +2295,7 @@ class ReturnVisitor extends ASTVisitor {
 		containReturn = true;
 		return false;
 	}
-	
+
 	public ArrayList<ASTNode> getReturnNodeList() {
 		return this.returnList;
 	}

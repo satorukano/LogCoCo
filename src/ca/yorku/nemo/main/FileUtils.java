@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.CycleDetector;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultEdge;
 
 import com.google.common.base.Charsets;
@@ -171,7 +171,7 @@ public class FileUtils {
 		}
 	}
 	
-	static String dfsTraverseCallGraphToGenerateLogPattern(DirectedGraph<InterProcNode, DefaultEdge> callGraph, 
+	static String dfsTraverseCallGraphToGenerateLogPattern(DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph,
 			InterProcNode entryVertex, boolean condition, boolean loop,
 			HashMap<InterProcNode, ArrayList<DefaultEdge>> branchChooseEdgeMap,
 			ArrayList<InterProcNode> astPath, boolean may) {
@@ -351,7 +351,7 @@ public class FileUtils {
 		return result;
 	}
 	
-	static String dfsTraverseCallGraphIsLogExist(DirectedGraph<InterProcNode, DefaultEdge> callGraph, 
+	static String dfsTraverseCallGraphIsLogExist(DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph,
 			InterProcNode entryVertex, boolean condition, boolean loop) {
 		
 		String result = "";
@@ -417,7 +417,7 @@ public class FileUtils {
 	 * @param callGraph
 	 * @return
 	 */
-	static HashMap<InterProcNode, ArrayList<ArrayList<DefaultEdge>>> extractBranchPossibility(DirectedGraph<InterProcNode, DefaultEdge> callGraph) {
+	static HashMap<InterProcNode, ArrayList<ArrayList<DefaultEdge>>> extractBranchPossibility(DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph) {
 		HashMap<InterProcNode, ArrayList<ArrayList<DefaultEdge>>> branchEdgeListMap = new HashMap<>();
 		for (InterProcNode v : callGraph.vertexSet()) {
 			if (v.astNode instanceof IfStatement || v.astNode instanceof SwitchStatement
@@ -537,7 +537,7 @@ public class FileUtils {
 		return (vertex.astNode instanceof ForStatement) || (vertex.astNode instanceof WhileStatement) || (vertex.astNode instanceof EnhancedForStatement);
 	}
 	
-	static boolean hasLoopParent(DirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode vertex) {
+	static boolean hasLoopParent(DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode vertex) {
 		
 		InterProcNode currentVertex = vertex;
 		while(callGraph.inDegreeOf(currentVertex) != 0) {
@@ -581,7 +581,7 @@ public class FileUtils {
 		
 	}
 	
-	static InterProcNode getContainingMethodDeclarationProcNode(DirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode currentNode) {
+	static InterProcNode getContainingMethodDeclarationProcNode(DefaultDirectedGraph<InterProcNode, DefaultEdge> callGraph, InterProcNode currentNode) {
 		InterProcNode resultNode = currentNode;
 		while (! (resultNode.astNode instanceof MethodDeclaration)) {
 			Set<DefaultEdge> edgeSet = callGraph.incomingEdgesOf(resultNode);

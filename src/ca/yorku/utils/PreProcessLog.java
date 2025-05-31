@@ -32,29 +32,33 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.jgraph.graph.EdgeView;
 
 import com.google.common.base.Joiner;
 
 import ca.yorku.nemo.main.FileUtils;
 import ca.yorku.nemo.risky.ExtractMethodCallMap;
+import ca.yorku.nemo.main.PackageNameResolver;
 
 public class PreProcessLog {
 	
 //	static String logFilePath = "hbase-nemo-master-Nemos-MacBook-Pro-2.local.log";
 //	static String logFilePath = "";
-	static String qualifyClassNameAndFileInfoPath = "qualifyname_filepath.txt";
+	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static PackageNameResolver packageNameResolver;
+
+
 	
 	static HashMap<String, String> qualifyClassNameFilePathMap = new HashMap<>();
 	
 	public static void main(String[] args) {
 		
-		String option = "integration";
-		String path = "integration_test_data/logs/";
-		String outputDir = "integration_debug_data/pre_process_logs";
+		String option = "zookeeper";
+		String path = "input/logs/";
+		String outputDir = "output/pre_process_logs/";
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
+			packageNameResolver = new PackageNameResolver(qualifyClassNameAndFileInfoPath);
 			while((line = br.readLine()) != null) {
 				String[] results = line.split(",");
 				String[] tokens = results[0].split("\\.");
@@ -90,7 +94,7 @@ public class PreProcessLog {
 				String line = null;
 				Stack<String> completeLog = new Stack<>();
 				while((line = br.readLine()) != null) {
-					if (line.startsWith("2018")) {
+					if (line.startsWith("2025")) {
 						if (!completeLog.isEmpty()) {
 							String logStmt = Joiner.on("\n").join(completeLog);
 							completeLog.clear();
@@ -183,6 +187,24 @@ public class PreProcessLog {
 				String[] tmp = filePath.split(File.separator);
 				fileName = tmp[tmp.length-1];
 				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]"; 
+			} else {
+				return "";
+			}
+		} else if (opt == "zookeeper") {
+			Pattern p = Pattern.compile("-\\s+\\w+\\s+\\[([^:]+):([^@]+)@(\\d+)\\]");
+			Matcher m = p.matcher(logLine);
+			if (m.find()) {
+				threadName = m.group(1);
+				clsIdentity = m.group(2);
+				lineNumber = m.group(3);
+			}
+			String resolvedClsIdentity = packageNameResolver.resolveFullClassName(clsIdentity);
+			String resolvedClsIdentityKeys = resolvedClsIdentity.split("\\.")[resolvedClsIdentity.split("\\.").length-2] + "." + resolvedClsIdentity.split("\\.")[resolvedClsIdentity.split("\\.").length-1];
+			if (qualifyClassNameFilePathMap.containsKey(resolvedClsIdentityKeys)) {
+				filePath = qualifyClassNameFilePathMap.get(resolvedClsIdentityKeys);
+				String[] tmp = filePath.split(File.separator);
+				fileName = tmp[tmp.length-1];
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]";
 			} else {
 				return "";
 			}
