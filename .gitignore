@@ -1,4 +1,5 @@
-input
-output
 target
 .DS_Store
+.idea/
+input
+output

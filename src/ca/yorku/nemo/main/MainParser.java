@@ -124,6 +124,13 @@ public class MainParser {
 	static String invokeHeuritics ="org.apache.zookeeper";
 	
 	public static void main(String[] args) {
+		// Record start time and initial memory usage
+		long startTime = System.currentTimeMillis();
+		Runtime runtime = Runtime.getRuntime();
+		runtime.gc(); // Run garbage collection for more accurate initial measurement
+		long initialMemory = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("=== Memory Usage Report ===");
+		System.out.printf("Initial memory usage: %.2f MB\n", initialMemory / (1024.0 * 1024.0));
 
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
@@ -161,8 +168,21 @@ public class MainParser {
 			e.printStackTrace();
 		}
 		
+		// Memory check before processing files
+		long beforeProcessingMemory = runtime.totalMemory() - runtime.freeMemory();
+		System.out.printf("Memory before processing files: %.2f MB\n", beforeProcessingMemory / (1024.0 * 1024.0));
+		System.out.printf("Number of files to process: %d\n\n", allFiles.size());
+		
+		int fileCount = 0;
 		for (String filePath : allFiles) {
-			logger.info("Processing File {}", filePath);
+			fileCount++;
+			logger.info("Processing File {} ({}/{})", filePath, fileCount, allFiles.size());
+			
+			// Memory check every 10 files
+			if (fileCount % 10 == 0) {
+				long currentMemory = runtime.totalMemory() - runtime.freeMemory();
+				System.out.printf("Memory after %d files: %.2f MB\n", fileCount, currentMemory / (1024.0 * 1024.0));
+			}
 			if (filePath.contains("zookeeper-server")) {
 				if(filePath.contains("zookeeper/ZKSplitLog.java")){
 //					|| filePath.contains("ipc/RpcServer.java")) {
@@ -203,7 +223,15 @@ public class MainParser {
 //		CoverageData coverageData = new CoverageData(oracle_coverage_data);
 //		outputMethodCoverage();
 
+		// Memory usage before outputEstimatedCoverageOnly
+		long beforeOutputMemory = runtime.totalMemory() - runtime.freeMemory();
+		System.out.printf("Memory usage before output: %.2f MB\n", beforeOutputMemory / (1024.0 * 1024.0));
+		
 		outputEstimatedCoverageOnly(output_coverage_matrix);
+		
+		// Memory usage after outputEstimatedCoverageOnly
+		long afterOutputMemory = runtime.totalMemory() - runtime.freeMemory();
+		System.out.printf("Memory usage after output: %.2f MB\n", afterOutputMemory / (1024.0 * 1024.0));
 
 		
 //		ArrayList<Integer> logAddCountList = new ArrayList<>();
@@ -328,6 +356,17 @@ public class MainParser {
 		}
 		
 		*/
+		
+		// Final memory usage report
+		long finalMemory = runtime.totalMemory() - runtime.freeMemory();
+		long totalTime = System.currentTimeMillis() - startTime;
+		
+		System.out.println("\n=== Final Memory Usage Summary ===");
+		System.out.printf("Initial memory: %.2f MB\n", initialMemory / (1024.0 * 1024.0));
+		System.out.printf("Final memory: %.2f MB\n", finalMemory / (1024.0 * 1024.0));
+		System.out.printf("Memory used: %.2f MB\n", (finalMemory - initialMemory) / (1024.0 * 1024.0));
+		System.out.printf("Max memory available: %.2f MB\n", runtime.maxMemory() / (1024.0 * 1024.0));
+		System.out.printf("Total execution time: %.2f seconds\n", totalTime / 1000.0);
 		
 		System.exit(0); 
 	}
@@ -551,14 +590,19 @@ public class MainParser {
 	 * @param outputCsvPath 出力するCSVファイルのパス
 	 */
 	public static void outputEstimatedCoverageOnly(String outputCsvPath) {
-		System.out.println("Outputting 'Must' estimated coverage (with line details) to: " + outputCsvPath);
+		// Memory monitoring for this method
+		Runtime runtime = Runtime.getRuntime();
+		long methodStartMemory = runtime.totalMemory() - runtime.freeMemory();
+		
+		System.out.println("Outputting 'Must' and 'May' estimated coverage (with line details) to: " + outputCsvPath);
+		System.out.printf("Memory at method start: %.2f MB\n", methodStartMemory / (1024.0 * 1024.0));
 		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(outputCsvPath, false)))) {
 			// CSVヘッダーの書き込み
-			writer.println("Method,FilePath,StartLine,EndLine,MustCoveredLines,TotalConsideredLines,LineCoverageRate,MustCoveredBranches,TotalConsideredBranches,BranchCoverageRate,MustLineNumbers,MustBranchRepresentativeLineNumbers");
+			writer.println("Method,FilePath,StartLine,EndLine,MustCoveredLines,MayCoveredLines,TotalConsideredLines,MustLineCoverageRate,MayLineCoverageRate,MustCoveredBranches,MayCoveredBranches,TotalConsideredBranches,MustBranchCoverageRate,MayBranchCoverageRate,MustLineNumbers,MayLineNumbers,MustBranchRepresentativeLineNumbers,MayBranchRepresentativeLineNumbers");
 
 			for (MethodNodeForOutput procMd : methodGlobalMarkMap.keySet()) {
 				System.out.println("--------------------------------------");
-				System.out.println("Processing method for CSV output (Must only, detailed): " + procMd);
+				System.out.println("Processing method for CSV output (Must and May, detailed): " + procMd);
 				HashMap<ASTNode, String> markMap = methodGlobalMarkMap.get(procMd);
 
 				// === ラインカバレッジ (LogCoCoの推定に基づく) ===
@@ -566,7 +610,9 @@ public class MainParser {
 				TreeMap<Integer, String> lineStatusByLogCoCo = calculateCoverageMap(markMap, procMd);
 
 				int mustTrueLines = 0;
+				int mayTrueLines = 0;
 				StringBuilder mustLineNumbersBuilder = new StringBuilder();
+				StringBuilder mayLineNumbersBuilder = new StringBuilder();
 				for (Map.Entry<Integer, String> entry : lineStatusByLogCoCo.entrySet()) {
 					if ("Must".equals(entry.getValue())) {
 						mustTrueLines++;
@@ -574,11 +620,19 @@ public class MainParser {
 							mustLineNumbersBuilder.append(";");
 						}
 						mustLineNumbersBuilder.append(entry.getKey());
+					} else if ("May".equals(entry.getValue())) {
+						mayTrueLines++;
+						if (mayLineNumbersBuilder.length() > 0) {
+							mayLineNumbersBuilder.append(";");
+						}
+						mayLineNumbersBuilder.append(entry.getKey());
 					}
 				}
 				int totalConsideredLines = lineStatusByLogCoCo.size(); // LogCoCoがステータスを割り当てた行の総数
-				double lineCoverageRate = (totalConsideredLines > 0) ? (double) mustTrueLines / totalConsideredLines : 0.0;
+				double mustLineCoverageRate = (totalConsideredLines > 0) ? (double) mustTrueLines / totalConsideredLines : 0.0;
+				double mayLineCoverageRate = (totalConsideredLines > 0) ? (double) mayTrueLines / totalConsideredLines : 0.0;
 				String mustLineNumbers = mustLineNumbersBuilder.length() > 0 ? mustLineNumbersBuilder.toString() : "None";
+				String mayLineNumbers = mayLineNumbersBuilder.length() > 0 ? mayLineNumbersBuilder.toString() : "None";
 
 				// === ブランチカバレッジ (LogCoCoの推定に基づく) ===
 				// branchCoverageByLog に相当する TreeMap<Integer, String> branchStatusByLogCoCo
@@ -620,7 +674,9 @@ public class MainParser {
 				}
 
 				int mustTrueBranches = 0;
+				int mayTrueBranches = 0;
 				StringBuilder mustBranchLineNumbersBuilder = new StringBuilder();
+				StringBuilder mayBranchLineNumbersBuilder = new StringBuilder();
 				for (Map.Entry<Integer, String> entry : branchStatusByLogCoCo.entrySet()) {
 					if ("Must".equals(entry.getValue())) {
 						mustTrueBranches++;
@@ -628,11 +684,19 @@ public class MainParser {
 							mustBranchLineNumbersBuilder.append(";");
 						}
 						mustBranchLineNumbersBuilder.append(entry.getKey());
+					} else if ("May".equals(entry.getValue())) {
+						mayTrueBranches++;
+						if (mayBranchLineNumbersBuilder.length() > 0) {
+							mayBranchLineNumbersBuilder.append(";");
+						}
+						mayBranchLineNumbersBuilder.append(entry.getKey());
 					}
 				}
 				// totalConsideredBranches は上でカウント済み
-				double branchCoverageRate = (totalConsideredBranches > 0) ? (double) mustTrueBranches / totalConsideredBranches : 0.0;
+				double mustBranchCoverageRate = (totalConsideredBranches > 0) ? (double) mustTrueBranches / totalConsideredBranches : 0.0;
+				double mayBranchCoverageRate = (totalConsideredBranches > 0) ? (double) mayTrueBranches / totalConsideredBranches : 0.0;
 				String mustBranchRepresentativeLineNumbers = mustBranchLineNumbersBuilder.length() > 0 ? mustBranchLineNumbersBuilder.toString() : "None";
+				String mayBranchRepresentativeLineNumbers = mayBranchLineNumbersBuilder.length() > 0 ? mayBranchLineNumbersBuilder.toString() : "None";
 
 				// メソッド情報の取得
 				String methodName = procMd.md.getName().toString();
@@ -641,30 +705,43 @@ public class MainParser {
 				int endLine = procMd.cu.getLineNumber(procMd.md.getStartPosition() + procMd.md.getLength() - 1);
 
 				// CSVへの書き込み
-				writer.printf("\"%s\",\"%s\",%d,%d,%d,%d,%.4f,%d,%d,%.4f,\"%s\",\"%s\"\n",
+				writer.printf("\"%s\",\"%s\",%d,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%d,%.4f,%.4f,\"%s\",\"%s\",\"%s\",\"%s\"\n",
 						methodName.replace("\"", "\"\""),
 						filePath.replace("\"", "\"\""),
 						startLine,
 						endLine,
 						mustTrueLines,
+						mayTrueLines,
 						totalConsideredLines,
-						lineCoverageRate,
+						mustLineCoverageRate,
+						mayLineCoverageRate,
 						mustTrueBranches,
+						mayTrueBranches,
 						totalConsideredBranches,
-						branchCoverageRate,
+						mustBranchCoverageRate,
+						mayBranchCoverageRate,
 						mustLineNumbers.replace("\"", "\"\""),
-						mustBranchRepresentativeLineNumbers.replace("\"", "\"\""));
+						mayLineNumbers.replace("\"", "\"\""),
+						mustBranchRepresentativeLineNumbers.replace("\"", "\"\""),
+						mayBranchRepresentativeLineNumbers.replace("\"", "\"\""));
 
 				// 標準出力 (デバッグ用)
 				System.out.printf("  Method: %s (%s:%d-%d)\n", methodName, filePath, startLine, endLine);
-				System.out.printf("  Line Coverage (Must/Considered): %d / %d (%.2f%%)\n", mustTrueLines, totalConsideredLines, lineCoverageRate * 100);
+				System.out.printf("  Line Coverage (Must/May/Total): %d / %d / %d (%.2f%% / %.2f%%)\n", mustTrueLines, mayTrueLines, totalConsideredLines, mustLineCoverageRate * 100, mayLineCoverageRate * 100);
 				System.out.println("  Must Line Numbers: " + mustLineNumbers);
-				System.out.printf("  Branch Coverage (Must/Considered): %d / %d (%.2f%%)\n", mustTrueBranches, totalConsideredBranches, branchCoverageRate * 100);
+				System.out.println("  May Line Numbers: " + mayLineNumbers);
+				System.out.printf("  Branch Coverage (Must/May/Total): %d / %d / %d (%.2f%% / %.2f%%)\n", mustTrueBranches, mayTrueBranches, totalConsideredBranches, mustBranchCoverageRate * 100, mayBranchCoverageRate * 100);
 				System.out.println("  Must Branch Representative Line Numbers: " + mustBranchRepresentativeLineNumbers);
+				System.out.println("  May Branch Representative Line Numbers: " + mayBranchRepresentativeLineNumbers);
 			}
-			System.out.println("Finished writing 'Must' estimated coverage (with line details) to CSV.");
+			System.out.println("Finished writing 'Must' and 'May' estimated coverage (with line details) to CSV.");
+			
+			// Memory usage at method end
+			long methodEndMemory = runtime.totalMemory() - runtime.freeMemory();
+			System.out.printf("Memory at method end: %.2f MB\n", methodEndMemory / (1024.0 * 1024.0));
+			System.out.printf("Memory used by outputEstimatedCoverageOnly: %.2f MB\n", (methodEndMemory - methodStartMemory) / (1024.0 * 1024.0));
 		} catch (Exception e) {
-			System.err.println("Error writing 'Must' estimated coverage (with line details) to CSV: " + outputCsvPath);
+			System.err.println("Error writing 'Must' and 'May' estimated coverage (with line details) to CSV: " + outputCsvPath);
 			e.printStackTrace();
 		}
 	}
@@ -719,14 +796,14 @@ public class MainParser {
 				HashMap<InterProcNode, ArrayList<ArrayList<DefaultEdge>>> branchPos = FileUtils.extractBranchPossibility(callGraph);
 				ArrayList<HashMap<InterProcNode, ArrayList<DefaultEdge>>> list = new ArrayList<>();
 
-				if (branchPos.size() >= 15) {
+				if (branchPos.size() >= 20) {
 					System.out.println("Branch size more than 20 " + filePath + ";"+ node );
 					continue;
 				}
 				
 				FileUtils.combine(0, new HashMap<InterProcNode,ArrayList<DefaultEdge>>(), branchPos, list);
 //				System.out.println(md.getName()+":"+list.size());
-				if (list.size() >= 10000) {
+				if (list.size() >= 100000) {
 					System.out.println("path size more than 100000" + filePath + ";"+ node );
 					System.out.println(list.size());
 					continue;
