@@ -126,7 +126,7 @@ public class MainParser {
 	public static void main(String[] args) {
 		// Record start time and initial memory usage
 		if (args.length > 0) {
-			jreLibPath = args[1];
+			jreLibPath = args[0];
 		}
 		long startTime = System.currentTimeMillis();
 		Runtime runtime = Runtime.getRuntime();
