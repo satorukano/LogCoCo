@@ -85,13 +85,13 @@ import com.google.common.collect.Sets;
 public class MainParser {
 	
 	static String projectRootPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
-	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String qualifyClassNameAndFileInfoPath = "output/outputClass.txt";
 	static String processedLogDir = "output/pre_process_logs/";
 //	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
-	static String entryMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
+	static String entryMethodList = "output/outputContainLogMethodList.txt";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
-	static String oracle_coverage_data = "/Users/satorukano/repository/research/LogCoCo/input/ex.xml";
-	static String output_coverage_matrix = "/Users/satorukano/repository/research/LogCoCo/output/coverage.csv";
+	static String oracle_coverage_data = "input/ex.xml";
+	static String output_coverage_matrix = "output/coverage.csv";
 	static String logAddCountDistributionPath = "logAddPointCount.txt"; 
 	static String comparisonTwoObjFunction = "comparisonOfTwoObjFunctionResults.txt";
 	
@@ -125,6 +125,9 @@ public class MainParser {
 	
 	public static void main(String[] args) {
 		// Record start time and initial memory usage
+		if (args.length > 0) {
+			jreLibPath = args[1];
+		}
 		long startTime = System.currentTimeMillis();
 		Runtime runtime = Runtime.getRuntime();
 		runtime.gc(); // Run garbage collection for more accurate initial measurement
