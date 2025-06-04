@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar ./target/logcoco-1.0-SNAPSHOT.jar
+java -Xms128G -Xmx128G -jar ./target/logcoco-1.0-SNAPSHOT.jar
