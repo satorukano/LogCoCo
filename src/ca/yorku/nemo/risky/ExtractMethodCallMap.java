@@ -32,13 +32,13 @@ import ca.yorku.nemo.main.MainParser;
 
 public class ExtractMethodCallMap {
 	
-	static String qualifyNameFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
-	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";;
+	static String qualifyNameFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/outputClass.txt";
+	static String projectPath = "/Users/satorukano/repository/research/hbase-1.2.6";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
-	static String outputContainLogMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
-	static String outputInvokingMethods = "/Users/satorukano/repository/research/LogCoCo/output/invoke_method.txt";
+	static String outputContainLogMethodList = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/outputContainLogMethodList.txt";
+	static String outputInvokingMethods = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/invoke_method.txt";
 	
-	static String invokeHeuristics = "org.apache.zookeeper";
+	static String invokeHeuristics = "org.apache.hadoop";
 	HashMap<String, HashSet<String>> methodCallMap = new HashMap<>();
 	
 	static HashMap<String, String> qualifyClassNameFilePathMap = new HashMap<>();

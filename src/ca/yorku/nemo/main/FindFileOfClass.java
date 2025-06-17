@@ -18,8 +18,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class FindFileOfClass {
 	
-	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
-	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String projectPath = "/Users/satorukano/repository/research/hbase-1.2.6";
+	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/outputClass.txt";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	
 	static HashMap<String, String> qualifyNameFileAbsPathMap = new HashMap<>();

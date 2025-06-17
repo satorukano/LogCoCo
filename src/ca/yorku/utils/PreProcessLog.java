@@ -43,7 +43,7 @@ public class PreProcessLog {
 	
 //	static String logFilePath = "hbase-nemo-master-Nemos-MacBook-Pro-2.local.log";
 //	static String logFilePath = "";
-	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
+	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/outputClass.txt";
 	static PackageNameResolver packageNameResolver;
 
 
@@ -52,9 +52,9 @@ public class PreProcessLog {
 	
 	public static void main(String[] args) {
 		
-		String option = "zookeeper";
-		String path = "input/logs/";
-		String outputDir = "output/pre_process_logs/";
+		String option = "integration"; 
+		String path = "input/replication/hbase/";
+		String outputDir = "output/replication/hbase/pre_process_logs/";
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;

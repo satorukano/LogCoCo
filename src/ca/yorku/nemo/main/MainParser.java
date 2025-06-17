@@ -200,10 +200,10 @@ public class MainParser {
 //			}
 //		}
 		
-//		CoverageData coverageData = new CoverageData(oracle_coverage_data);
-//		outputMethodCoverage();
+		CoverageData coverageData = new CoverageData(oracle_coverage_data);
+		outputMethodCoverage(coverageData);
 
-		outputEstimatedCoverageOnly(output_coverage_matrix);
+		// outputEstimatedCoverageOnly(output_coverage_matrix);
 
 		
 //		ArrayList<Integer> logAddCountList = new ArrayList<>();
@@ -420,11 +420,11 @@ public class MainParser {
 		return results;
 	}
 	
-	public static void outputMethodCoverage() {
+	public static void outputMethodCoverage(CoverageData coverageData) {
 		
 		int totalCovMethodByLogSug =0;
 		int covBothMethodCanCount = 0;
-//		int totalCovByOralce = coverageData.getTotalMethodNumber();
+		int totalCovByOralce = coverageData.getTotalMethodNumber(); 
 		for(MethodNodeForOutput procMd : methodGlobalMarkMap.keySet()) {
 			System.out.println("--------------------------------------");
 			System.out.println(procMd);
@@ -475,20 +475,21 @@ public class MainParser {
 			if (coveredMethod) {
 				int mdStartLine = procMd.cu.getLineNumber(procMd.md.getStartPosition());
 				int mdEndLine = procMd.cu.getLineNumber(procMd.md.getStartPosition()+procMd.md.getLength() -1);
-//				Element covMethodElem = coverageData.getMethodLineCoverageMap(procMd.filePath, procMd.md.getName().toString(), mdStartLine, mdEndLine);
-//				if (covMethodElem==null) {
+				Element covMethodElem = coverageData.getMethodLineCoverageMap(procMd.filePath, procMd.md.getName().toString(), mdStartLine, mdEndLine);
+				if (covMethodElem==null) {
 					System.out.println("Can't find method elem in covxml!! " + procMd);
-//				}
+				}
+				else {
 					covBothMethodCanCount ++;
-//					coverageData.compareCoverage(covMethodElem, lineCoverageMap, branchRepresentativeLineCovMap,
-//							procMd, output_coverage_matrix);
-
-
+					coverageData.compareCoverage(covMethodElem, lineCoverageMap, branchRepresentativeLineCovMap,
+							procMd, output_coverage_matrix);
+				}
 			}
 		}
-		System.out.printf(" LogSug coverage covers methods: %d; Common coverage covers methods: %d\n",
-				 totalCovMethodByLogSug, covBothMethodCanCount);
+		System.out.printf("Coverage report: Oracle coverage covers methods: %d ; LogSug coverage covers methods: %d; Common coverage covers methods: %d\n",
+				totalCovByOralce, totalCovMethodByLogSug, covBothMethodCanCount);
 	}
+
 
 	
 //	public static void findLogGenerateMethods(String filePath) {
