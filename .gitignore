@@ -2,3 +2,5 @@ input
 output
 target
 .DS_Store
+.sif
+.out

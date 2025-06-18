@@ -84,14 +84,14 @@ import com.google.common.collect.Sets;
 
 public class MainParser {
 	
-	static String projectRootPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
-	static String qualifyClassNameAndFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
-	static String processedLogDir = "output/pre_process_logs/";
+	static String projectRootPath = "/work/satoru-k/projects/hbase-1.2.6";
+	static String qualifyClassNameAndFileInfoPath = "/work/satoru-k/projects/LogCoCo/output/replication/hbase/outputClass.txt";
+	static String processedLogDir = "output/replication/hbase/pre_process_logs/";
 //	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
-	static String entryMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
+	static String entryMethodList = "output/replication/hbase/outputContainLogMethodList.txt";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
-	static String oracle_coverage_data = "/Users/satorukano/repository/research/LogCoCo/input/ex.xml";
-	static String output_coverage_matrix = "/Users/satorukano/repository/research/LogCoCo/output/coverage.csv";
+	static String oracle_coverage_data = "input/replication/hbase/coverage/jacoco.xml";
+	static String output_coverage_matrix = "output/replication/hbase/coverage.csv";
 	static String logAddCountDistributionPath = "logAddPointCount.txt"; 
 	static String comparisonTwoObjFunction = "comparisonOfTwoObjFunctionResults.txt";
 	
@@ -124,6 +124,10 @@ public class MainParser {
 	static String invokeHeuritics ="org.apache.zookeeper";
 	
 	public static void main(String[] args) {
+
+		if (args.length > 0) {
+			jreLibPath = args[0];
+		}
 
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
@@ -163,7 +167,7 @@ public class MainParser {
 		
 		for (String filePath : allFiles) {
 			logger.info("Processing File {}", filePath);
-			if (filePath.contains("zookeeper-server")) {
+			if (filePath.contains("hbase-server")) {
 				if(filePath.contains("zookeeper/ZKSplitLog.java")){
 //					|| filePath.contains("ipc/RpcServer.java")) {
 					continue;

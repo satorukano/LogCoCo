@@ -52,9 +52,14 @@ public class LogRegexMatcher {
 			String[] strList = logFileContent.split("\\r?\\n");
 	//		ArrayList<String> filterLogList = new ArrayList<>();
 			for (int i= 0; i < strList.length; i ++) {
-				String logID = strList[i];
-				if (logIdSet.contains(logID)) {
-					filteredLogSequence.add(logID);
+				String logLine = strList[i];
+				// Split by tab to separate thread name from log ID
+				String[] parts = logLine.split("\t");
+				if (parts.length >= 2) {
+					String logID = parts[1]; // Extract [FileName.java:lineNumber]
+					if (logIdSet.contains(logID)) {
+						filteredLogSequence.add(logID);
+					}
 				}
 			}
 			filteredLogSequenceListOfThreads.add(filteredLogSequence);

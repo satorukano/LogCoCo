@@ -30,6 +30,8 @@ public class CoverageData {
 		try {
 			File fXmlFile = new File(covXml);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			dbFactory.setValidating(false);
+			dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);
 			rootElem = doc.getDocumentElement();

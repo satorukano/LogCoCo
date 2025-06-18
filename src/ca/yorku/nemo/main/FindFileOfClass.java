@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class FindFileOfClass {
 	
-	static String projectPath = "/Users/satorukano/repository/research/hbase-1.2.6";
+	static String projectPath = "/work/satoru-k/projects/hbase-1.2.6";
 	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/replication/hbase/outputClass.txt";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	

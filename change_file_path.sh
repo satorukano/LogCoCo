@@ -7,9 +7,9 @@
 TARGET_DIR="${1:-.}"
 
 # 置換前の文字列
-OLD_STRING="/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper"
+OLD_STRING="/work/satoru-k/projects/hbase-1.2.6"
 # 置換後の文字列
-NEW_STRING="/work/satoru-k/projects/zookeeper"
+NEW_STRING="/work/satoru-k/projects/hbase-1.2.6"
 
 # 処理開始
 echo "置換処理を開始します..."
