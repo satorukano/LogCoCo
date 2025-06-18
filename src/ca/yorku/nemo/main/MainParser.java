@@ -426,6 +426,9 @@ public class MainParser {
 	
 	public static void outputMethodCoverage(CoverageData coverageData) {
 		
+		// Initialize coverage.csv file with headers
+		initializeCoverageFile(output_coverage_matrix);
+		
 		int totalCovMethodByLogSug =0;
 		int covBothMethodCanCount = 0;
 		int totalCovByOralce = coverageData.getTotalMethodNumber(); 
@@ -494,6 +497,25 @@ public class MainParser {
 				totalCovByOralce, totalCovMethodByLogSug, covBothMethodCanCount);
 	}
 
+	private static void initializeCoverageFile(String outputPath) {
+		try {
+			// Create parent directories if they don't exist
+			File file = new File(outputPath);
+			File parentDir = file.getParentFile();
+			if (parentDir != null && !parentDir.exists()) {
+				parentDir.mkdirs();
+			}
+			
+			// Write header to the file
+			try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(outputPath, false)))) {
+				writer.println("Method,MustTrue,MustFalse,MayTrue,MayFalse,MustNotTrue,MustNotFalse,MustTrueBranch,MustFalseBranch,MayTrueBranch,MayFalseBranch,MustNotTrueBranch,MustNotFalseBranch");
+			}
+			System.out.println("Initialized coverage file: " + outputPath);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Failed to initialize coverage file: " + outputPath);
+		}
+	}
 
 	
 //	public static void findLogGenerateMethods(String filePath) {
