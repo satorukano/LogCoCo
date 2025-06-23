@@ -33,7 +33,7 @@ import ca.yorku.nemo.main.MainParser;
 public class ExtractMethodCallMap {
 	
 	static String qualifyNameFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
-	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";;
+	static String projectPath = "/Users/satorukano/repository/research/zookeeper";;
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	static String outputContainLogMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
 	static String outputInvokingMethods = "/Users/satorukano/repository/research/LogCoCo/output/invoke_method.txt";
@@ -155,8 +155,8 @@ public class ExtractMethodCallMap {
 	public static CompilationUnit getResolvedCUFromFilePath(String filePath) {
 		try {
 			Map options = JavaCore.getOptions();
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-			ASTParser astParser = ASTParser.newParser(AST.JLS8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			String fs = FileUtils.getFileString(filePath);
 			astParser.setCompilerOptions(options);
@@ -165,7 +165,7 @@ public class ExtractMethodCallMap {
 			List importList = cu.imports();
 			
 			
-			astParser = ASTParser.newParser(AST.JLS8);
+			astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());

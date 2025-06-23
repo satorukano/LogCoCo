@@ -217,8 +217,8 @@ public class PreProcessLog {
 		String lineNumber = "";
 		
 		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-		ASTParser astParser = ASTParser.newParser(AST.JLS8);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+		ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 		String fs = FileUtils.getFileString(filePath);
 		astParser.setCompilerOptions(options);

@@ -17,8 +17,8 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class FindFileOfClass {
-	
-	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
+
+	static String projectPath = "/Users/satorukano/repository/research/zookeeper";
 	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
 	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	
@@ -40,8 +40,8 @@ public class FindFileOfClass {
 		try {
 			for (String filePath : allFiles) {
 				Map options = JavaCore.getOptions();
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-				ASTParser astParser = ASTParser.newParser(AST.JLS8);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+				ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 				astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 				String fs = FileUtils.getFileString(filePath);
 				astParser.setCompilerOptions(options);

@@ -432,8 +432,8 @@ public class ExtractMustNotMethods {
 	public static CompilationUnit getResolvedCUFromFilePath(String filePath) {
 		try {
 			Map options = JavaCore.getOptions();
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-			ASTParser astParser = ASTParser.newParser(AST.JLS8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			String fs = FileUtils.getFileString(filePath);
 			astParser.setCompilerOptions(options);
@@ -442,7 +442,7 @@ public class ExtractMustNotMethods {
 			List importList = cu.imports();
 			
 			
-			astParser = ASTParser.newParser(AST.JLS8);
+			astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());

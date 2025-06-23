@@ -84,7 +84,7 @@ import com.google.common.collect.Sets;
 
 public class MainParser {
 	
-	static String projectRootPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
+	static String projectRootPath = "/Users/satorukano/repository/research/zookeeper";
 	static String qualifyClassNameAndFileInfoPath = "output/outputClass.txt";
 	static String processedLogDir = "output/pre_process_logs/";
 //	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
@@ -550,7 +550,7 @@ public class MainParser {
 //			String[] srcPathEntries = dependentModuleDir.toArray(new String[dependentModuleDir.size()]);
 //			
 //			// parse again
-//			astParser = ASTParser.newParser(AST.JLS8);
+//			astParser = ASTParser.newParser(AST.getJLSLatest());
 //			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 //			astParser.setCompilerOptions(options);
 //			astParser.setSource(fs.toCharArray());
@@ -1581,7 +1581,7 @@ public class MainParser {
 				methodGlobalMarkMap.put(newEntryNode, nodeWithoutLogMatchingMarkMap);
 			}
 			return;
-		}
+	}
 		
 		// coverage for the entry method
 		System.out.println("Matched Regex: " + matchedLogRegexAndItsMatchedLogStrMap.keySet());
@@ -2145,8 +2145,8 @@ public class MainParser {
 		logger.debug("Getting the dependent files from import componenets");
 		try {
 			Map options = JavaCore.getOptions();
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-			ASTParser astParser = ASTParser.newParser(AST.JLS8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			String fs = FileUtils.getFileString(filePath);
 			astParser.setCompilerOptions(options);
@@ -2155,7 +2155,7 @@ public class MainParser {
 			List importList = cu.imports();
 			
 			
-			astParser = ASTParser.newParser(AST.JLS8);
+			astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());
