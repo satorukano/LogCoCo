@@ -26,8 +26,8 @@ public class FindFileOfClass {
 	static LinkedHashSet<String> allFiles = new LinkedHashSet<>(); 
 	public static void main(String[] args) {
 		
-//		projectPath = args[0];
-//		outputFilePath = args[1];
+		projectPath = args[0];
+		outputFilePath = args[1];
 //		jreLibPath = args[2];
 		
 		try {

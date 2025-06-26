@@ -52,9 +52,10 @@ public class PreProcessLog {
 	
 	public static void main(String[] args) {
 		
-		String option = "zookeeper";
-		String path = "input/logs/";
-		String outputDir = "output/pre_process_logs/";
+		String option = args[0];
+		String path = args[1];
+		String outputDir = args[2];
+		qualifyClassNameAndFileInfoPath = args[3];
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
@@ -168,7 +169,8 @@ public class PreProcessLog {
 				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
 				String[] tmp = filePath.split(File.separator);
 				fileName = tmp[tmp.length-1];
-				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]"; 
+				String methodInfo = extractMethodInfo(filePath, Integer.parseInt(lineNumber));
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]" + "\t" + filePath + ":" + methodInfo + "\t" + logLine; 
 			} else {
 				return "";
 			}
@@ -186,7 +188,8 @@ public class PreProcessLog {
 				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
 				String[] tmp = filePath.split(File.separator);
 				fileName = tmp[tmp.length-1];
-				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]"; 
+				String methodInfo = extractMethodInfo(filePath, Integer.parseInt(lineNumber));
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]" + "\t" + filePath + ":" + methodInfo + "\t" + logLine; 
 			} else {
 				return "";
 			}
@@ -204,7 +207,8 @@ public class PreProcessLog {
 				filePath = qualifyClassNameFilePathMap.get(resolvedClsIdentityKeys);
 				String[] tmp = filePath.split(File.separator);
 				fileName = tmp[tmp.length-1];
-				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]";
+				String methodInfo = extractMethodInfo(filePath, Integer.parseInt(lineNumber));
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]" + "\t" + filePath + ":" + methodInfo + "\t" + logLine;
 			} else {
 				return "";
 			}
@@ -363,7 +367,53 @@ public class PreProcessLog {
 		}
 	}
 	
+	public static String extractMethodInfo(String filePath, int lineNumber) {
+		try {
+			Map<String, String> options = JavaCore.getOptions();
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
+			String fs = FileUtils.getFileString(filePath);
+			astParser.setCompilerOptions(options);
+			astParser.setSource(fs.toCharArray());
+			
+			CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
+			MethodVisitor visitor = new MethodVisitor(cu, lineNumber);
+			cu.accept(visitor);
+			return visitor.getMethodInfo();
+		} catch (Exception e) {
+			return "";
+		}
+	}
 	
+	
+}
+
+class MethodVisitor extends ASTVisitor {
+	private CompilationUnit cu;
+	private int targetLineNumber;
+	private String methodInfo = "";
+	
+	public MethodVisitor(CompilationUnit cu, int lineNumber) {
+		this.cu = cu;
+		this.targetLineNumber = lineNumber;
+	}
+	
+	@Override
+	public boolean visit(MethodDeclaration node) {
+		int startLine = cu.getLineNumber(node.getStartPosition());
+		int endLine = cu.getLineNumber(node.getStartPosition() + node.getLength());
+		
+		if (targetLineNumber >= startLine && targetLineNumber <= endLine) {
+			methodInfo = node.getName().getIdentifier();
+			return false;
+		}
+		return true;
+	}
+	
+	public String getMethodInfo() {
+		return methodInfo;
+	}
 }
 
 class MIVisitor extends ASTVisitor {

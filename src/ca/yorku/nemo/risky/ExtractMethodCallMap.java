@@ -47,12 +47,12 @@ public class ExtractMethodCallMap {
 	
 	public static void main(String[] args) {
 		
-//		projectPath = args[0];
-//		qualifyNameFileInfoPath = args[1];
+		projectPath = args[0];
+		qualifyNameFileInfoPath = args[1];
 //		jreLibPath = args[2];
-//		outputContainLogMethodList = args[3];
-//		outputInvokingMethods = args[4];
-//		invokeHeuristics = args[5];
+		outputContainLogMethodList = args[2];
+		outputInvokingMethods = args[3];
+		invokeHeuristics = args[4];
 		
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyNameFileInfoPath))) {
