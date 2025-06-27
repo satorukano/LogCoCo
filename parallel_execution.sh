@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH --job-name=LogCoCo
+#SBATCH --array=1-2000
+#SBATCH --time=4:00:00
+#SBATCH --partition=cluster_short
+#SBATCH --ntasks=1
+#SBATCH --mem=64G
+#SBATCH --cpus-per-task=10
+
+module load singularity
+LEAF_DIRECTORY_FILE_PATH="$1"
+TARGET_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LEAF_DIRECTORY_FILE_PATH")
+TARGET_ROOT_DIR="path/to/project/dir"
+TARGET_MODULE="module"
+RT_JAR="/opt/java/openjdk/jre/lib"
+singularity exec LogCoCo.sif java -jar ./target/logcoco-preprocesslog-1.0-SNAPSHOT.jar hbase "${TARGET_DIR}/log.txt" "${TARGET_DIR}/process_log.txt"
+singularity exec LogCoCo.sif java -jar ./target/logcoco-mainparser-1.0-SNAPSHOT.jar "${TARGET_ROOT_DIR}/outputClass.txt" "${TARGET_DIR}/process_log.txt" "${TARGET_ROOT_DIR}/outputContainLogMethodList.txt" "${TARGET_DIR}/coverage.csv" "$RT_JAR" "$TARGET_MODULE"

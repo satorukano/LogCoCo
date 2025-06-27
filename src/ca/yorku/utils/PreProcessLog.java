@@ -172,7 +172,7 @@ public class PreProcessLog {
 			} else {
 				return "";
 			}
-		} else if (opt == "integration") {
+		} else if (opt == "hbase") {
 //			if (logLine.contains("DEBUG") || logLine.contains("TRACE")) 
 //				return "";
 			Pattern p = Pattern.compile("(\\[.+?\\]) (\\w+\\.\\w+)(\\$\\w+)?\\((\\d+)\\):");
