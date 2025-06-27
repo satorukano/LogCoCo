@@ -52,9 +52,9 @@ public class PreProcessLog {
 	
 	public static void main(String[] args) {
 		
-		String option = "zookeeper";
-		String path = "input/logs/";
-		String outputDir = "output/pre_process_logs/";
+		String option = args[0];
+		String path = args[1];
+		String outputDir = args[2];
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
