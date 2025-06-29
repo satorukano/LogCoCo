@@ -11,7 +11,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # 引数を変数に代入
-TARGET_DIR="$$1"
+TARGET_DIR="$1"
 OUTPUT_FILE="${2:-leaf_directories.txt}"
 
 # ターゲットディレクトリが存在するかチェック
