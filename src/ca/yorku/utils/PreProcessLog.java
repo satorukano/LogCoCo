@@ -55,6 +55,7 @@ public class PreProcessLog {
 		String option = args[0];
 		String path = args[1];
 		String outputDir = args[2];
+		qualifyClassNameAndFileInfoPath = args[3];
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
