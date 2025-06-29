@@ -173,7 +173,7 @@ public class PreProcessLog {
 			} else {
 				return "";
 			}
-		} else if (opt == "hbase") {
+		} else if (opt.equals("hbase")) {
 //			if (logLine.contains("DEBUG") || logLine.contains("TRACE")) 
 //				return "";
 			Pattern p = Pattern.compile("(\\[.+?\\]) (\\w+\\.\\w+)(\\$\\w+)?\\((\\d+)\\):");
@@ -183,6 +183,8 @@ public class PreProcessLog {
 				clsIdentity = m.group(2);
 				lineNumber = m.group(4);
 			}
+			System.out.println("clsIdentity: " + clsIdentity);
+			System.out.println("lineNumber: " + lineNumber);
 			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
 				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
 				String[] tmp = filePath.split(File.separator);
