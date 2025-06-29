@@ -105,7 +105,7 @@ public class PreProcessLog {
 								if (!fTest.exists()) {
 									fTest.mkdir();
 								}
-								try(FileWriter fw = new FileWriter(Paths.get(outputDir,outlogFileName+".txt").toString(), true);
+								try(FileWriter fw = new FileWriter(Paths.get(outputDir,"process_log.txt").toString(), true);
 									    BufferedWriter bw = new BufferedWriter(fw);
 									    PrintWriter out = new PrintWriter(bw))
 									{
