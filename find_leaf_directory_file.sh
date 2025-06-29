@@ -11,7 +11,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # 引数を変数に代入
-TARGET_DIR="$1"
+TARGET_DIR="$$1"
 OUTPUT_FILE="${2:-leaf_directories.txt}"
 
 # ターゲットディレクトリが存在するかチェック
@@ -33,7 +33,8 @@ find_leaf_directories() {
     find "$TARGET_DIR" -type d | while read -r dir; do
         # 現在のディレクトリに子ディレクトリがあるかチェック
         if [ ! "$(find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
-            echo "$dir"
+            # 絶対パスに変換して出力
+            realpath "$dir"
         fi
     done
 }
