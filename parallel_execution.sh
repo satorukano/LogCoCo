@@ -2,7 +2,7 @@
 #SBATCH --job-name=LogCoCo
 #SBATCH --output=logs/make-list_%A_%a.out
 #SBATCH --error=errors/make-list_%A_%a.err
-#SBATCH --array=1-2000
+#SBATCH --array=1-589
 #SBATCH --time=4:00:00
 #SBATCH --partition=cluster_short
 #SBATCH --ntasks=1
