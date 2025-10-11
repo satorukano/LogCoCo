@@ -63,7 +63,12 @@ public class PreProcessLog {
 			while((line = br.readLine()) != null) {
 				String[] results = line.split(",");
 				String[] tokens = results[0].split("\\.");
-				String key = tokens[tokens.length-2] + "." + tokens[tokens.length-1];
+				String key = null;
+				if (option.equals("hbase")) {
+					key = tokens[tokens.length-2] + "." + tokens[tokens.length-1];
+				} else if (option.equals("zookeeper")) {
+					key = tokens[tokens.length-1];
+				}
 				qualifyClassNameFilePathMap.put(key, results[1]);
 			}
 		} catch (Exception e) {
@@ -193,18 +198,16 @@ public class PreProcessLog {
 			} else {
 				return "";
 			}
-		} else if (opt == "zookeeper") {
-			Pattern p = Pattern.compile("-\\s+\\w+\\s+\\[([^:]+):([^@]+)@(\\d+)\\]");
+		} else if (opt.equals("zookeeper")) {
+			Pattern p = Pattern.compile("-\\s+\\w+\\s+\\[([^:]+):([^@$]+)@(\\d+)\\]");
 			Matcher m = p.matcher(logLine);
 			if (m.find()) {
 				threadName = m.group(1);
 				clsIdentity = m.group(2);
 				lineNumber = m.group(3);
 			}
-			String resolvedClsIdentity = packageNameResolver.resolveFullClassName(clsIdentity);
-			String resolvedClsIdentityKeys = resolvedClsIdentity.split("\\.")[resolvedClsIdentity.split("\\.").length-2] + "." + resolvedClsIdentity.split("\\.")[resolvedClsIdentity.split("\\.").length-1];
-			if (qualifyClassNameFilePathMap.containsKey(resolvedClsIdentityKeys)) {
-				filePath = qualifyClassNameFilePathMap.get(resolvedClsIdentityKeys);
+			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
+				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
 				String[] tmp = filePath.split(File.separator);
 				fileName = tmp[tmp.length-1];
 				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]";

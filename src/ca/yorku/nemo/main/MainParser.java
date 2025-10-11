@@ -122,6 +122,8 @@ public class MainParser {
 	static Logger logger = LogManager.getLogger();
 	
 	static String invokeHeuritics ="org.apache.zookeeper";
+
+	static String project = "zookeeper";
 	
 	public static void main(String[] args) {
 		// Record start time and initial memory usage
@@ -132,6 +134,8 @@ public class MainParser {
 			output_coverage_matrix = args[3];
 			jreLibPath = args[4];
 			invokeHeuritics = args[5];
+			project = args[6];
+
 		}
 		long startTime = System.currentTimeMillis();
 		Runtime runtime = Runtime.getRuntime();
@@ -191,7 +195,7 @@ public class MainParser {
 				long currentMemory = runtime.totalMemory() - runtime.freeMemory();
 				System.out.printf("Memory after %d files: %.2f MB\n", fileCount, currentMemory / (1024.0 * 1024.0));
 			}
-			if (filePath.contains("zookeeper-server")) {
+			if (filePath.contains(project)) {
 				if(filePath.contains("zookeeper/ZKSplitLog.java")){
 //					|| filePath.contains("ipc/RpcServer.java")) {
 					continue;
