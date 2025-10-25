@@ -20,7 +20,8 @@ public class FindFileOfClass {
 	
 	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";
 	static String outputFilePath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
-	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
+	// Java 9+ uses module system instead of rt.jar, so jreLibPath is no longer needed
+	// static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	
 	static HashMap<String, String> qualifyNameFileAbsPathMap = new HashMap<>();
 	static LinkedHashSet<String> allFiles = new LinkedHashSet<>(); 
@@ -28,7 +29,7 @@ public class FindFileOfClass {
 		
 		projectPath = args[0];
 		outputFilePath = args[1];
-		jreLibPath = args[2];
+		// jreLibPath argument (args[2]) is no longer needed for Java 9+
 		
 		try {
 			traverse(new File(projectPath));
@@ -40,14 +41,15 @@ public class FindFileOfClass {
 		try {
 			for (String filePath : allFiles) {
 				Map options = JavaCore.getOptions();
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-				ASTParser astParser = ASTParser.newParser(AST.JLS8);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+				ASTParser astParser = ASTParser.newParser(AST.JLS11);
 				astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 				String fs = FileUtils.getFileString(filePath);
 				astParser.setCompilerOptions(options);
 				astParser.setSource(fs.toCharArray());
 				String unitName = FileUtils.extractUnitnameFromAbsFilePath(filePath);
-				String[] classPathEntries = {jreLibPath};
+				// Java 9+ uses module system, so empty classpath array is sufficient
+				String[] classPathEntries = new String[0];
 				String[] srcPathEntries = {FileUtils.extractSrcEntryFromAbsFilePath(filePath)};
 				String[] encodeArray = new String[srcPathEntries.length];
 				Arrays.fill(encodeArray, "UTF-8");

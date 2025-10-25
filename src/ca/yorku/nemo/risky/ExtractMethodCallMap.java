@@ -34,7 +34,8 @@ public class ExtractMethodCallMap {
 	
 	static String qualifyNameFileInfoPath = "/Users/satorukano/repository/research/LogCoCo/output/outputClass.txt";
 	static String projectPath = "/Users/satorukano/repository/research/TraceCollector/repos/main/zookeeper";;
-	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
+	// Java 9+ uses module system instead of rt.jar, so jreLibPath is no longer needed
+	// static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
 	static String outputContainLogMethodList = "/Users/satorukano/repository/research/LogCoCo/output/outputContainLogMethodList.txt";
 	static String outputInvokingMethods = "/Users/satorukano/repository/research/LogCoCo/output/invoke_method.txt";
 	
@@ -49,10 +50,10 @@ public class ExtractMethodCallMap {
 		
 		projectPath = args[0];
 		qualifyNameFileInfoPath = args[1];
-		jreLibPath = args[2];
-		outputContainLogMethodList = args[3];
-		outputInvokingMethods = args[4];
-		invokeHeuristics = args[5];
+		// jreLibPath argument (args[2]) is no longer needed for Java 9+
+		outputContainLogMethodList = args[2];
+		outputInvokingMethods = args[3];
+		invokeHeuristics = args[4];
 		
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyNameFileInfoPath))) {
@@ -155,27 +156,29 @@ public class ExtractMethodCallMap {
 	public static CompilationUnit getResolvedCUFromFilePath(String filePath) {
 		try {
 			Map options = JavaCore.getOptions();
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-			ASTParser astParser = ASTParser.newParser(AST.JLS8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+			ASTParser astParser = ASTParser.newParser(AST.JLS11);
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			String fs = FileUtils.getFileString(filePath);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());
 			CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
 			List importList = cu.imports();
-			
-			
-			astParser = ASTParser.newParser(AST.JLS8);
+
+
+			astParser = ASTParser.newParser(AST.JLS11);
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());
 			HashSet<String> dependentModuleDir = getDependentModuleDir(importList);
 			String[] srcPathEntries = dependentModuleDir.toArray(new String[dependentModuleDir.size()]);
 			
-			
-			
+
+
+
 			String unitName = FileUtils.extractUnitnameFromAbsFilePath(filePath);
-			String[] classPathEntries = {jreLibPath};
+			// Java 9+ uses module system, so empty classpath array is sufficient
+			String[] classPathEntries = new String[0];
 //			String[] srcPathEntries = {"D:\\bce-plat\\finance\\fp-charging-v2\\src\\main\\java",
 //									   "D:\\bce-plat\\finance\\fp-fundpool-biz\\src\\main\\java", 
 //									   "D:\\bce-plat\\finance\\fp-charging-base\\src\\main\\java",

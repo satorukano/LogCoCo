@@ -3,4 +3,4 @@ target
 .idea/
 input
 output
-.sif
+*.sif
