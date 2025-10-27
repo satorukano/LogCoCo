@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #SBATCH --time=4:00:00
 #SBATCH --partition=cluster_short
 #SBATCH --ntasks=1
