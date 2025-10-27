@@ -121,7 +121,7 @@ public class MainParser {
 	static int totalMethodWithLog = 0;
 	static int totalMethodWithInternalCall = 0;
 	
-	static Logger logger = LogManager.getLogger();
+	static Logger logger = LogManager.getLogger(MainParser.class);
 	
 	static String invokeHeuritics ="org.apache.zookeeper";
 
