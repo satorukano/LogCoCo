@@ -56,6 +56,8 @@ public class PreProcessLog {
 		String path = args[1];
 		String outputDir = args[2];
 		qualifyClassNameAndFileInfoPath = args[3];
+
+		System.out.println("preprocess log for option: " + option);
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(qualifyClassNameAndFileInfoPath))) {
 			String line = null;
@@ -70,6 +72,7 @@ public class PreProcessLog {
 					key = tokens[tokens.length-1];
 				} else if (option.equals("druid")) {
 					key = tokens[tokens.length-1];
+					System.out.println("key: " + key);
 				}
 				qualifyClassNameFilePathMap.put(key, results[1]);
 			}
