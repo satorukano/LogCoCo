@@ -3,6 +3,8 @@
 #SBATCH --time=4:00:00
 #SBATCH --partition=cluster_short
 #SBATCH --ntasks=1
+#SBATCH --output=logs/make-list_%A_%a.out
+#SBATCH --error=errors/make-list_%A_%a.err
 #SBATCH --array=1-74
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=10
