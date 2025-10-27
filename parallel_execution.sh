@@ -1,6 +1,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --partition=cluster_short
 #SBATCH --ntasks=1
+#SBATCH --array=1-74
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=10
 
