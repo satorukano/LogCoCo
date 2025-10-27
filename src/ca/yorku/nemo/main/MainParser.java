@@ -89,7 +89,9 @@ public class MainParser {
 	static String processedLogDir = "output/pre_process_logs/";
 //	static String riskyFileInfoPath = "risky_file_sample_paths.txt";
 	static String entryMethodList = "output/outputContainLogMethodList.txt";
-	static String jreLibPath = "/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/lib/rt.jar";
+	// Java 17 uses module system instead of rt.jar
+	// Set to empty string or system property java.home + "/lib/jrt-fs.jar" for Java 17+
+	static String jreLibPath = System.getProperty("java.home");
 	static String oracle_coverage_data = "input/ex.xml";
 	static String output_coverage_matrix = "output/coverage.csv";
 	static String logAddCountDistributionPath = "logAddPointCount.txt"; 
@@ -132,9 +134,9 @@ public class MainParser {
 			processedLogDir = args[1];
 			entryMethodList = args[2];
 			output_coverage_matrix = args[3];
-			jreLibPath = args[4];
-			invokeHeuritics = args[5];
-			project = args[6];
+			invokeHeuritics = args[4];
+			project = args[5];
+			jreLibPath = null;
 
 		}
 		long startTime = System.currentTimeMillis();
@@ -2154,8 +2156,8 @@ public class MainParser {
 		logger.debug("Getting the dependent files from import componenets");
 		try {
 			Map options = JavaCore.getOptions();
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-			ASTParser astParser = ASTParser.newParser(AST.JLS8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			String fs = FileUtils.getFileString(filePath);
 			astParser.setCompilerOptions(options);
@@ -2164,7 +2166,7 @@ public class MainParser {
 			List importList = cu.imports();
 			
 			
-			astParser = ASTParser.newParser(AST.JLS8);
+			astParser = ASTParser.newParser(AST.getJLSLatest());
 			astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 			astParser.setCompilerOptions(options);
 			astParser.setSource(fs.toCharArray());
@@ -2178,7 +2180,11 @@ public class MainParser {
 			String unitName = FileUtils.extractUnitnameFromAbsFilePath(filePath);
 			logger.debug("unitName passed to JDT {}", unitName);
 
-			String[] classPathEntries = {jreLibPath};
+			// For Java 17+, use empty array or null to let JDT use system classpath
+		// JDT will automatically recognize Java 17 module system
+		String[] classPathEntries = jreLibPath != null && !jreLibPath.isEmpty()
+			? new String[]{jreLibPath}
+			: new String[0];
 //			String[] srcPathEntries = {"D:\\bce-plat\\finance\\fp-charging-v2\\src\\main\\java",
 //									   "D:\\bce-plat\\finance\\fp-fundpool-biz\\src\\main\\java", 
 //									   "D:\\bce-plat\\finance\\fp-charging-base\\src\\main\\java",

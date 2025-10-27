@@ -68,6 +68,8 @@ public class PreProcessLog {
 					key = tokens[tokens.length-2] + "." + tokens[tokens.length-1];
 				} else if (option.equals("zookeeper")) {
 					key = tokens[tokens.length-1];
+				} else if (option.equals("druid")) {
+					key = tokens[tokens.length-1];
 				}
 				qualifyClassNameFilePathMap.put(key, results[1]);
 			}
@@ -199,12 +201,34 @@ public class PreProcessLog {
 				return "";
 			}
 		} else if (opt.equals("zookeeper")) {
-			Pattern p = Pattern.compile("-\\s+\\w+\\s+\\[([^:]+):([^@$]+)@(\\d+)\\]");
+			Pattern p = Pattern.compile("-\\s+\\w+\\s+\\[([^:]+):([^@]+)@(\\d+)\\]");
 			Matcher m = p.matcher(logLine);
 			if (m.find()) {
 				threadName = m.group(1);
 				clsIdentity = m.group(2);
 				lineNumber = m.group(3);
+				// Extract outer class if inner class (contains $)
+				if (clsIdentity.contains("$")) {
+					clsIdentity = clsIdentity.substring(0, clsIdentity.indexOf("$"));
+				}
+			}
+			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
+				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
+				String[] tmp = filePath.split(File.separator);
+				fileName = tmp[tmp.length-1];
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]";
+			} else {
+				return "";
+			}
+		} else if (opt.equals("druid")) {
+			Pattern p = Pattern.compile("^.*?\\[(.*)]\\s+[^\\[\\]]*\\.([^@]+)@(\\d+)");
+			Matcher m = p.matcher(logLine);
+			if (m.find()) {
+				threadName = m.group(1);
+				clsIdentity = m.group(2);
+				lineNumber = m.group(3);
+				System.out.println("clsIdentity: " + clsIdentity);
+				System.out.println("lineNumber: " + lineNumber);
 			}
 			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
 				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
@@ -223,8 +247,8 @@ public class PreProcessLog {
 		String lineNumber = "";
 		
 		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-		ASTParser astParser = ASTParser.newParser(AST.JLS8);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+		ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 		String fs = FileUtils.getFileString(filePath);
 		astParser.setCompilerOptions(options);
