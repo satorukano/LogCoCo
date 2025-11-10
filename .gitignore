@@ -3,4 +3,6 @@ target
 .idea/
 input
 output
+errors/
+logs/
 *.sif

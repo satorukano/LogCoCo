@@ -68,6 +68,10 @@ public class PreProcessLog {
 					key = tokens[tokens.length-2] + "." + tokens[tokens.length-1];
 				} else if (option.equals("zookeeper")) {
 					key = tokens[tokens.length-1];
+				} else if (option.equals("activemq")) {
+					key = tokens[tokens.length-1];
+				} else {
+					key = results[0];
 				}
 				qualifyClassNameFilePathMap.put(key, results[1]);
 			}
@@ -205,6 +209,33 @@ public class PreProcessLog {
 				threadName = m.group(1);
 				clsIdentity = m.group(2);
 				lineNumber = m.group(3);
+			}
+			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
+				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
+				String[] tmp = filePath.split(File.separator);
+				fileName = tmp[tmp.length-1];
+				return threadName + "\t" + "[" + fileName + ":" + lineNumber + "]";
+			} else {
+				return "";
+			}
+		} else if (opt.equals("activemq")) {
+			Pattern p = Pattern.compile("\\S+\\s+\\S+,\\d+\\s+\\[(.*)\\]\\s+(?:- )?\\w+\\s+(\\S+)\\s+@(\\d+)");
+			Matcher m = p.matcher(logLine);
+			Pattern p2 = Pattern.compile("^[^|]+\\|[^|]+\\|\\s*([^|]+?)\\s*\\|[^|]*?(\\S+)\\s+@(\\d+)");
+			Matcher m2 = p2.matcher(logLine);
+			if (m.find()) {
+				threadName = m.group(1);
+				clsIdentity = m.group(2);
+				lineNumber = m.group(3);
+				System.out.println("clsIdentity: " + clsIdentity);
+				System.out.println("lineNumber: " + lineNumber);
+			}
+			else if (m2.find()) {
+				threadName = m2.group(1);
+				clsIdentity = m2.group(2);
+				lineNumber = m2.group(3);
+				System.out.println("clsIdentity: " + clsIdentity);
+				System.out.println("lineNumber: " + lineNumber);
 			}
 			if (qualifyClassNameFilePathMap.containsKey(clsIdentity)) {
 				filePath = qualifyClassNameFilePathMap.get(clsIdentity);
