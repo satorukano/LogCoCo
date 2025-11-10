@@ -72,7 +72,8 @@ public class PreProcessLog {
 					key = tokens[tokens.length-1];
 				} else if (option.equals("druid")) {
 					key = tokens[tokens.length-1];
-					System.out.println("key: " + key);
+				}else if (option.equals("activemq")) {
+					key = tokens[tokens.length-1];
 				}
 				qualifyClassNameFilePathMap.put(key, results[1]);
 			}
@@ -242,7 +243,7 @@ public class PreProcessLog {
 				return "";
 			}
 		} else if (opt.equals("activemq")) {
-			Pattern p = Pattern.compile("\\S+\\s+\\S+,\\d+\\s+\\[(.*)\\]\\s+ - \\w+\\s+(\\S+)\\s+@(\\d+)");
+			Pattern p = Pattern.compile("\\S+\\s+\\S+,\\d+\\s+\\[(.*)\\]\\s+(?:- )?\\w+\\s+(\\S+)\\s+@(\\d+)");
 			Matcher m = p.matcher(logLine);
 			Pattern p2 = Pattern.compile("^[^|]+\\|[^|]+\\|\\s*([^|]+?)\\s*\\|[^|]*?(\\S+)\\s+@(\\d+)");
 			Matcher m2 = p2.matcher(logLine);
